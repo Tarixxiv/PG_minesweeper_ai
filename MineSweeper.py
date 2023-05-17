@@ -5,7 +5,7 @@ class MineSweeper:
     def __init__(self, dimensions):
         self.board = []
         self.fog_of_war_map = []
-        self.valid_move_count = 0
+        self.revealed_fields_count = 0
         self.mine_count = 0
         self.dimensions = dimensions
         self.game_result = "safe"
@@ -84,7 +84,7 @@ class MineSweeper:
 
     def reveal(self, y, x):
         try:
-            self.valid_move_count += 1
+            self.revealed_fields_count += 1
             self.fog_of_war_map[y][x] = 1
             if self.board[y][x] == '*':
                 print("boom!!!")
@@ -98,7 +98,7 @@ class MineSweeper:
         return "safe"
 
     def checkWin(self):
-        if self.game_result != "boom" and self.valid_move_count + self.mine_count == self.dimensions ** 2:
+        if self.game_result != "boom" and self.revealed_fields_count + self.mine_count == self.dimensions ** 2:
             print("Mission accomplished")
             self.game_result = "victory"
 
@@ -109,14 +109,14 @@ class MineSweeper:
                 self.reveal(y, x)
                 self.checkWin()
             self.print_player_map()
-            return self.valid_move_count
+            return self.revealed_fields_count
 
     def get_all_possible_moves(self):
         return [[y, x] for y in range(self.dimensions) for x in range(self.dimensions) if self.fog_of_war_map[y][x] == 0]
 
     def reset(self):
         self.generate_fog_of_war_map()
-        self.valid_move_count = 0
+        self.revealed_fields_count = 0
         self.game_result = "safe"
         
     def newGame(self):
