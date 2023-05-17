@@ -9,7 +9,7 @@ class MineSweeper:
         self.mine_count = 0
         self.dimensions = dimensions
         self.game_result = "safe"
-        self.newGame()
+        self.new_game()
 
     def insert_mine(self, y, x):
         self.board[y][x] = '*'
@@ -97,17 +97,17 @@ class MineSweeper:
 
         return "safe"
 
-    def checkWin(self):
+    def check_win(self):
         if self.game_result != "boom" and self.revealed_fields_count + self.mine_count == self.dimensions ** 2:
             print("Mission accomplished")
             self.game_result = "victory"
 
     def action(self, y, x):
             #uncomment for manual control
-            #y, x = self.manualcontrol()
+            #y, x = self.manual_control()
             if self.fog_of_war_map[y][x] == 0:
                 self.reveal(y, x)
-                self.checkWin()
+                self.check_win()
             self.print_player_map()
             return self.revealed_fields_count
 
@@ -119,7 +119,7 @@ class MineSweeper:
         self.revealed_fields_count = 0
         self.game_result = "safe"
         
-    def newGame(self):
+    def new_game(self):
         self.reset()
         self.generate_board()
         self.mine_count = random.randint(self.dimensions ** 2 // 16, self.dimensions ** 2 // 8)
@@ -127,5 +127,5 @@ class MineSweeper:
         self.place_mines()
         self.print_full_board()
 
-    def manualcontrol(self):
+    def manual_control(self):
         return map(int, input("wpisz rząd i kolumnę\n").split())
