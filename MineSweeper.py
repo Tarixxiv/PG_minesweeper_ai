@@ -8,6 +8,7 @@ class MineSweeper:
         self.revealed_fields_count = 0
         self.mine_count = 0
         self.dimensions = dimensions
+
         self.game_result = "safe"
         self.new_game()
 
@@ -103,22 +104,24 @@ class MineSweeper:
             self.game_result = "victory"
 
     def action(self, y, x):
-            #uncomment for manual control
-            #y, x = self.manual_control()
-            if self.fog_of_war_map[y][x] == 0:
-                self.reveal(y, x)
-                self.check_win()
-            self.print_player_map()
-            return self.revealed_fields_count
+        # uncomment for manual control
+        # y, x = self.manual_control()
+        if self.fog_of_war_map[y][x] == 0:
+            self.reveal(y, x)
+            self.check_win()
+        self.print_player_map()
+        # returns string : "safe"/"victory"/"boom"
+        return self.game_result
 
     def get_all_possible_moves(self):
-        return [[y, x] for y in range(self.dimensions) for x in range(self.dimensions) if self.fog_of_war_map[y][x] == 0]
+        return [[y, x] for y in range(self.dimensions) for x in range(self.dimensions) if
+                self.fog_of_war_map[y][x] == 0]
 
     def reset(self):
         self.generate_fog_of_war_map()
         self.revealed_fields_count = 0
         self.game_result = "safe"
-        
+
     def new_game(self):
         self.reset()
         self.generate_board()
@@ -126,6 +129,21 @@ class MineSweeper:
         # Only the mines on the board are strings, the rest are ints
         self.place_mines()
         self.print_full_board()
+
+    def get_neighbour_fields(self, y, x):
+        output = []
+        for yi in range(-1, 2):
+            row = []
+            for xi in range(-1, 2):
+                if y + yi in range(0, self.dimensions) and x + xi in range(0, self.dimensions):
+                    if self.fog_of_war_map[y + yi][x + xi]:
+                        row.append(self.board[y + yi][x + xi])
+                    else:
+                        row.append("#")
+                else:
+                    row.append("OoB")
+            output.append(row)
+        return output
 
     def manual_control(self):
         return map(int, input("wpisz rząd i kolumnę\n").split())
