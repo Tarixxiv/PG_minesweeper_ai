@@ -7,12 +7,11 @@ class QLearningAgent:
     def __init__(self, dimensions):
         self.game = None
         self.qtable = {}
-        self.episodes = 100000
-        self.random_move_chance = 0.01
+        self.episodes = 50000
+        self.random_move_chance = 0.9
         self.win_count = 0
         self.loss_count = 0
-        self.agent_loop(dimensions)
-        print(self.qtable)
+        self.learn_and_test(dimensions)
 
     def agent_loop(self, dimensions):
         for episode in range(self.episodes):
@@ -26,6 +25,15 @@ class QLearningAgent:
             print("ended due to " + self.game.game_result)
             self.update_win_loss_count()
             print("wins :", self.win_count, ",losses :", self.loss_count, ",win-loss ratio :", self.get_win_loss_ratio())
+        print(self.qtable)
+
+    def learn_and_test(self, dimensions):
+        self.agent_loop(dimensions)
+        self.random_move_chance = 0.01
+        self.win_count = 0
+        self.loss_count = 0
+        self.agent_loop(dimensions)
+
 
 
     def update_win_loss_count(self):
@@ -69,11 +77,12 @@ class QLearningAgent:
         neighbours = self.neighbours_to_string(y, x)
         if neighbours not in self.qtable:
             self.qtable[neighbours] = 0
-        else:
-            self.qtable[neighbours] += self.game_result_to_reward()
+        self.qtable[neighbours] += self.game_result_to_reward()
 
     def neighbours_to_string(self, y, x):
         neighbour_grid = self.game.get_neighbour_fields(y, x)
         neighbours = list(np.concatenate(neighbour_grid).flat)
+        if neighbours[int(len(neighbours)/2)] == '*':
+            neighbours[int(len(neighbours)/2)] = '#'
         string = ''.join(['B' if point == 'OoB' else str(point) for point in neighbours])
         return string
