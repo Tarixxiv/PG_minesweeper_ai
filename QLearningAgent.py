@@ -27,7 +27,8 @@ class QLearningAgent:
             self.update_win_loss_count()
             print("wins :", self.win_count, ",losses :", self.loss_count,
                   ",win-loss ratio :", self.get_win_loss_ratio())
-        print(self.qtable)
+
+        print(sorted(((v, k) for k, v in self.qtable.items()), reverse=True))
 
     def learn_and_test(self, dimensions):
         self.agent_loop(dimensions)
