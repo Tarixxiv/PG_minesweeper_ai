@@ -55,7 +55,7 @@ class QLearningAgent:
         possible_moves = self.game.get_all_possible_moves()
         move_scores = []
         for move in possible_moves:
-            neighbours = self.neighbours_to_string(self.game.get_neighbour_fields(*move))
+            neighbours = self.neighbours_to_string(*move)
             if neighbours in self.qtable:
                 move_scores.append(self.qtable[neighbours])
             else:
@@ -66,13 +66,14 @@ class QLearningAgent:
         self.handle_qtable(y, x)
 
     def handle_qtable(self, y, x):
-        neighbours = self.neighbours_to_string(self.game.get_neighbour_fields(y, x))
+        neighbours = self.neighbours_to_string(y, x)
         if neighbours not in self.qtable:
             self.qtable[neighbours] = 0
         else:
             self.qtable[neighbours] += self.game_result_to_reward()
 
-    def neighbours_to_string(self, neighbours):
-        neighbours = list(np.concatenate(neighbours).flat)
+    def neighbours_to_string(self, y, x):
+        neighbour_grid = self.game.get_neighbour_fields(y, x)
+        neighbours = list(np.concatenate(neighbour_grid).flat)
         string = ''.join(['B' if point == 'OoB' else str(point) for point in neighbours])
         return string
