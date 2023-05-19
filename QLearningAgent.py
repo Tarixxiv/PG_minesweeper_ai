@@ -37,8 +37,6 @@ class QLearningAgent:
         self.loss_count = 0
         self.agent_loop(dimensions)
 
-
-
     def update_win_loss_count(self):
         if self.game.game_result == "boom":
             self.loss_count += 1
@@ -47,7 +45,7 @@ class QLearningAgent:
 
     def get_win_loss_ratio(self):
         if self.win_count + self.loss_count != 0:
-            return self.win_count/(self.win_count + self.loss_count)
+            return self.win_count / (self.win_count + self.loss_count)
         else:
             return 0
 
@@ -63,7 +61,7 @@ class QLearningAgent:
         self.game.action(y, x)
         self.handle_qtable(neighbours)
 
-    def do_qtable_move(self):
+    def pick_best_qtable_move(self):
         possible_moves = self.game.get_all_possible_moves()
         move_scores = []
         for move in possible_moves:
@@ -73,7 +71,10 @@ class QLearningAgent:
             else:
                 move_scores.append(0)
         best_move_index = move_scores.index(max(move_scores))
-        y, x = possible_moves[best_move_index]
+        return possible_moves[best_move_index]
+
+    def do_qtable_move(self):
+        y, x = pick_best_qtable_move()
         neighbours = self.game.get_neighbour_fields(y, x)
         self.game.action(y, x)
         self.handle_qtable(neighbours)
@@ -89,7 +90,7 @@ class QLearningAgent:
 
     def neighbours_to_string(self, neighbours):
         neighbours = list(np.concatenate(neighbours).flat)
-        middle_field_index = int(len(neighbours)/2)
+        middle_field_index = int(len(neighbours) / 2)
         neighbours[middle_field_index] = '#'
         string = ''.join(['B' if point == 'OoB' else str(point) for point in neighbours])
         return string
