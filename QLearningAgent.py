@@ -59,32 +59,36 @@ class QLearningAgent:
 
     def do_random_move(self):
         y, x = random.choice(self.game.get_all_possible_moves())
+        neighbours = self.game.get_neighbour_fields(y, x)
         self.game.action(y, x)
-        self.handle_qtable(y, x)
+        self.handle_qtable(neighbours)
 
     def do_qtable_move(self):
         possible_moves = self.game.get_all_possible_moves()
         move_scores = []
         for move in possible_moves:
-            neighbours = self.neighbours_to_string(*move)
+            neighbours = self.neighbours_to_string(self.game.get_neighbour_fields(*move))
             if neighbours in self.qtable:
                 move_scores.append(self.qtable[neighbours])
             else:
                 move_scores.append(0)
         best_move_index = move_scores.index(max(move_scores))
         y, x = possible_moves[best_move_index]
+        neighbours = self.game.get_neighbour_fields(y, x)
         self.game.action(y, x)
-        self.handle_qtable(y, x)
+        self.handle_qtable(neighbours)
 
-    def handle_qtable(self, y, x):
-        neighbours = self.neighbours_to_string(y, x)
+    def handle_qtable(self, neighbours):
+        neighbours = self.neighbours_to_string(neighbours)
         if neighbours not in self.qtable:
             self.qtable[neighbours] = 0
-        self.qtable[neighbours] += self.game_result_to_reward()
 
-    def neighbours_to_string(self, y, x):
-        neighbour_grid = self.game.get_neighbour_fields(y, x)
-        neighbours = list(np.concatenate(neighbour_grid).flat)
+        contains_revealed_field = any(char.isdigit() for char in neighbours)
+        if contains_revealed_field:
+            self.qtable[neighbours] += self.game_result_to_reward()
+
+    def neighbours_to_string(self, neighbours):
+        neighbours = list(np.concatenate(neighbours).flat)
         middle_field_index = int(len(neighbours)/2)
         neighbours[middle_field_index] = '#'
         string = ''.join(['B' if point == 'OoB' else str(point) for point in neighbours])
