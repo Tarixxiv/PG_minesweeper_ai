@@ -70,11 +70,12 @@ class QLearningAgent:
                 move_scores.append(self.qtable[neighbours])
             else:
                 move_scores.append(0)
-        best_move_index = move_scores.index(max(move_scores))
-        return possible_moves[best_move_index]
+
+        best_move_indexes = [i for i in range(len(move_scores)) if move_scores[i] == max(move_scores)]
+        return possible_moves[random.choice(best_move_indexes)]
 
     def do_qtable_move(self):
-        y, x = pick_best_qtable_move()
+        y, x = self.pick_best_qtable_move()
         neighbours = self.game.get_neighbour_fields(y, x)
         self.game.action(y, x)
         self.handle_qtable(neighbours)
