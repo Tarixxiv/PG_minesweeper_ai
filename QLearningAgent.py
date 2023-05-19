@@ -7,7 +7,7 @@ class QLearningAgent:
     def __init__(self, dimensions, random_move_chance, random_move_chance_test):
         self.game = None
         self.qtable = {}
-        self.episodes = 5000
+        self.episodes = 50000
         self.random_move_chance = random_move_chance
         self.random_move_chance_test = random_move_chance_test
         self.win_count = 0
@@ -53,7 +53,7 @@ class QLearningAgent:
         if self.game.game_result == "safe":
             return 1
         else:
-            return -1
+            return -5
 
     def do_random_move(self):
         y, x = random.choice(self.game.get_all_possible_moves())
@@ -81,11 +81,14 @@ class QLearningAgent:
         self.handle_qtable(neighbours)
 
     def handle_qtable(self, neighbours):
-        neighbours = self.neighbours_to_string(neighbours)
+        #neighbours = self.neighbours_to_string(neighbours)
+
+        neighbours = self.sum_neighbours(neighbours)
         if neighbours not in self.qtable:
             self.qtable[neighbours] = 0
 
-        contains_revealed_field = any(char.isdigit() for char in neighbours)
+#        contains_revealed_field = any(char.isdigit() for char in neighbours)
+        contains_revealed_field = neighbours
         if contains_revealed_field:
             self.qtable[neighbours] += self.game_result_to_reward()
 
@@ -93,3 +96,12 @@ class QLearningAgent:
         neighbours = list(np.concatenate(neighbours).flat)
         string = ''.join(['B' if point == 'OoB' else str(point) for point in neighbours])
         return string
+
+    def sum_neighbours(self, neighbours):
+        neighbours = list(np.concatenate(neighbours).flat)
+        sum = 0
+        for point in neighbours:
+            if point != 'OoB' and point != '#':
+                sum += int(point)
+
+        return sum
