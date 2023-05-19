@@ -91,7 +91,5 @@ class QLearningAgent:
 
     def neighbours_to_string(self, neighbours):
         neighbours = list(np.concatenate(neighbours).flat)
-        middle_field_index = int(len(neighbours) / 2)
-        neighbours[middle_field_index] = '#'
         string = ''.join(['B' if point == 'OoB' else str(point) for point in neighbours])
         return string
