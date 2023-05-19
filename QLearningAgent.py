@@ -7,8 +7,10 @@ class QLearningAgent:
     def __init__(self, dimensions):
         self.game = None
         self.qtable = {}
-        self.episodes = 1000
+        self.episodes = 100000
         self.random_move_chance = 0.01
+        self.win_count = 0
+        self.loss_count = 0
         self.agent_loop(dimensions)
         print(self.qtable)
 
@@ -22,6 +24,21 @@ class QLearningAgent:
                     self.do_random_move()
 
             print("ended due to " + self.game.game_result)
+            self.update_win_loss_count()
+            print("wins :", self.win_count, ",losses :", self.loss_count, ",win-loss ratio :", self.get_win_loss_ratio())
+
+
+    def update_win_loss_count(self):
+        if self.game.game_result == "boom":
+            self.loss_count += 1
+        else:
+            self.win_count += 1
+
+    def get_win_loss_ratio(self):
+        if self.win_count + self.loss_count != 0:
+            return self.win_count/(self.win_count + self.loss_count)
+        else:
+            return 0
 
     def game_result_to_reward(self):
         if self.game.game_result == "safe":
