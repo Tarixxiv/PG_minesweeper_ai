@@ -1,12 +1,12 @@
 import random
-
+import numpy as np
 from MineSweeper import MineSweeper
 
 
 class QLearningAgent:
     def __init__(self, dimensions):
         self.game = MineSweeper(dimensions)
-        self.qtable = []
+        self.qtable = {}
 
         self.agent_loop()
 
@@ -17,20 +17,18 @@ class QLearningAgent:
 
     def do_random_move(self):
         y, x = random.choice(self.game.get_all_possible_moves())
-        self.game.action(y, x) #move[0], move[1])
-        self.handle_qtable(y, x) #move[0], move[1])
+        self.game.action(y, x)
+        self.handle_qtable(y, x)
 
     def handle_qtable(self, y, x):
-        print("neighbours: ")
-        neighbours = self.game.get_neighbour_fields(y, x)
-        print(neighbours)
+        neighbours = self.neighbours_to_string(self.game.get_neighbour_fields(y, x))
+
         if neighbours not in self.qtable:
-            self.qtable.append(neighbours)
+            self.qtable[neighbours] = 0
+        else:
+            self.qtable += 1        #reward
 
-    def neighbours_to_string(self, list):
-
-        for point in list:
-            if point == 'OoB':
-
-
-
+    def neighbours_to_string(self, neighbours):
+        neighbours = list(np.concatenate(neighbours).flat)
+        string = ''.join(['B' if point == 'OoB' else str(point) for point in neighbours])
+        return string
