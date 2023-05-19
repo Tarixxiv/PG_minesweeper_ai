@@ -4,11 +4,12 @@ from MineSweeper import MineSweeper
 
 
 class QLearningAgent:
-    def __init__(self, dimensions):
+    def __init__(self, dimensions, random_move_chance, random_move_chance_test):
         self.game = None
         self.qtable = {}
-        self.episodes = 50000
-        self.random_move_chance = 0.9
+        self.episodes = 5000
+        self.random_move_chance = random_move_chance
+        self.random_move_chance_test = random_move_chance_test
         self.win_count = 0
         self.loss_count = 0
         self.learn_and_test(dimensions)
@@ -24,12 +25,13 @@ class QLearningAgent:
 
             print("ended due to " + self.game.game_result)
             self.update_win_loss_count()
-            print("wins :", self.win_count, ",losses :", self.loss_count, ",win-loss ratio :", self.get_win_loss_ratio())
+            print("wins :", self.win_count, ",losses :", self.loss_count,
+                  ",win-loss ratio :", self.get_win_loss_ratio())
         print(self.qtable)
 
     def learn_and_test(self, dimensions):
         self.agent_loop(dimensions)
-        self.random_move_chance = 0.01
+        self.random_move_chance = self.random_move_chance_test
         self.win_count = 0
         self.loss_count = 0
         self.agent_loop(dimensions)
@@ -82,7 +84,7 @@ class QLearningAgent:
     def neighbours_to_string(self, y, x):
         neighbour_grid = self.game.get_neighbour_fields(y, x)
         neighbours = list(np.concatenate(neighbour_grid).flat)
-        if neighbours[int(len(neighbours)/2)] == '*':
-            neighbours[int(len(neighbours)/2)] = '#'
+        middle_field_index = int(len(neighbours)/2)
+        neighbours[middle_field_index] = '#'
         string = ''.join(['B' if point == 'OoB' else str(point) for point in neighbours])
         return string
