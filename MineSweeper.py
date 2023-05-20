@@ -101,7 +101,7 @@ class MineSweeper:
         return "safe"
 
     def check_win(self):
-        if self.game_result != "boom" and self.revealed_fields_count == self.dimensions ** 2:
+        if self.game_result != "boom" and self.revealed_fields_count + self.mine_count == self.dimensions ** 2:
             print("Mission accomplished")
             self.game_result = "victory"
 
@@ -116,10 +116,11 @@ class MineSweeper:
         return self.game_result
 
     def flag(self, y, x):
-
         if self.fog_of_war_map[y][x] == 0:
             if self.board[y][x] == "*":
                 self.board[y][x] = "F"
+                #flags don't count torwards revealed fields
+                self.revealed_fields_count -= 1
             else:
                 #replaces safe field with bomb to cause loss
                 self.board[y][x] = "*"
