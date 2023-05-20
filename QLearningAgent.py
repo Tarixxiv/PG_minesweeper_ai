@@ -7,7 +7,7 @@ class QLearningAgent:
     def __init__(self, dimensions, random_move_chance, random_move_chance_test):
         self.game = None
         self.qtable = {}
-        self.episodes = 50000
+        self.episodes = 6000
         self.random_move_chance = random_move_chance
         self.random_move_chance_test = random_move_chance_test
         self.win_count = 0
@@ -23,7 +23,7 @@ class QLearningAgent:
                 else:
                     self.do_random_move()
 
-            print("ended due to " + self.game.game_result)
+          #  print("ended due to " + self.game.game_result)
             self.update_win_loss_count()
             print("wins :", self.win_count, ",losses :", self.loss_count,
                   ",win-loss ratio :", self.get_win_loss_ratio())
@@ -52,8 +52,10 @@ class QLearningAgent:
     def game_result_to_reward(self):
         if self.game.game_result == "safe":
             return 1
-        else:
-            return -5
+        elif self.game.game_result == "victory":
+            return 50
+        elif self.game.game_result == "boom":
+            return -50
 
     def do_random_move(self):
         y, x = random.choice(self.game.get_all_possible_moves())
@@ -65,7 +67,8 @@ class QLearningAgent:
         possible_moves = self.game.get_all_possible_moves()
         move_scores = []
         for move in possible_moves:
-            neighbours = self.neighbours_to_string(self.game.get_neighbour_fields(*move))
+            neighbours = self.sum_neighbours(self.game.get_neighbour_fields(*move))
+            #neighbours = self.neighbours_to_string(self.game.get_neighbour_fields(*move))
             if neighbours in self.qtable:
                 move_scores.append(self.qtable[neighbours])
             else:
