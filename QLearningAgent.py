@@ -10,6 +10,7 @@ class QLearningAgent:
         self.episodes = 5000
         self.random_move_chance = random_move_chance
         self.random_move_chance_test = random_move_chance_test
+        self.random_flag_chance = 0.05
         self.win_count = 0
         self.loss_count = 0
         self.learn_and_test(dimensions)
@@ -57,9 +58,13 @@ class QLearningAgent:
 
     def do_random_move(self):
         y, x = random.choice(self.game.get_all_possible_moves())
+        flag = random.random() <= self.random_flag_chance
         neighbours = self.game.get_neighbour_fields(y, x)
-        self.game.action(y, x)
-        self.handle_qtable(neighbours, False)
+        if flag:
+            self.game.flag(y, x)
+        else:
+            self.game.action(y, x)
+        self.handle_qtable(neighbours, flag)
 
     def pick_best_qtable_move(self):
         possible_moves = self.game.get_all_possible_moves()
