@@ -25,11 +25,21 @@ class QLearningAgent:
                     self.do_random_move()
 
             print("ended due to " + self.game.game_result)
+            if self.game.game_result == "victory":
+                self.add_non_revealed_mines_to_qtable()
+
             self.update_win_loss_count()
             print("wins :", self.win_count, ",losses :", self.loss_count,
                   ",win-loss ratio :", self.get_win_loss_ratio())
 
         print(sorted(((v, k) for k, v in self.qtable.items()), reverse=True))
+
+    def add_non_revealed_mines_to_qtable(self):
+        possible_moves = self.game.get_all_possible_moves()
+        if possible_moves:
+            for move in self.game.get_all_possible_moves():
+                neighbours = self.game.get_neighbour_fields(*move)
+                self.handle_qtable(neighbours, True)
 
     def learn_and_test(self, dimensions):
         self.agent_loop(dimensions)
@@ -51,10 +61,10 @@ class QLearningAgent:
             return 0
 
     def game_result_to_reward(self):
-        if self.game.game_result == "safe":
-            return 1
-        else:
+        if self.game.game_result == "boom":
             return -1
+        else:
+            return 1
 
     def do_random_move(self):
         y, x = random.choice(self.game.get_all_possible_moves())
