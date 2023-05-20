@@ -59,7 +59,7 @@ class QLearningAgent:
         y, x = random.choice(self.game.get_all_possible_moves())
         neighbours = self.game.get_neighbour_fields(y, x)
         self.game.action(y, x)
-        self.handle_qtable(neighbours)
+        self.handle_qtable(neighbours, False)
 
     def pick_best_qtable_move(self):
         possible_moves = self.game.get_all_possible_moves()
@@ -71,23 +71,35 @@ class QLearningAgent:
             else:
                 move_scores.append(0)
 
-        best_move_indexes = [i for i in range(len(move_scores)) if move_scores[i] == max(move_scores)]
-        return possible_moves[random.choice(best_move_indexes)]
+        flag = False
+        if max(move_scores) >= abs(min(move_scores)):
+            best_move_indexes = [i for i in range(len(move_scores)) if move_scores[i] == max(move_scores)]
+        else:
+            flag = True
+            best_move_indexes = [i for i in range(len(move_scores)) if move_scores[i] == min(move_scores)]
+
+        return possible_moves[random.choice(best_move_indexes)], flag
 
     def do_qtable_move(self):
-        y, x = self.pick_best_qtable_move()
+        [y, x], flag = self.pick_best_qtable_move()
         neighbours = self.game.get_neighbour_fields(y, x)
-        self.game.action(y, x)
-        self.handle_qtable(neighbours)
+        if flag:
+            self.game.flag(y, x)
+        else:
+            self.game.action(y, x)
+        self.handle_qtable(neighbours, flag)
 
-    def handle_qtable(self, neighbours):
+    def handle_qtable(self, neighbours, flag):
         neighbours = self.neighbours_to_string(neighbours)
         if neighbours not in self.qtable:
             self.qtable[neighbours] = 0
 
         contains_revealed_field = any(char.isdigit() for char in neighbours)
         if contains_revealed_field:
-            self.qtable[neighbours] += self.game_result_to_reward()
+            if flag:
+                self.qtable[neighbours] -= self.game_result_to_reward()
+            else:
+                self.qtable[neighbours] += self.game_result_to_reward()
 
     def neighbours_to_string(self, neighbours):
         neighbours = list(np.concatenate(neighbours).flat)

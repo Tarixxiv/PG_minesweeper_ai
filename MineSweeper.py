@@ -4,6 +4,7 @@ import random
 class MineSweeper:
     def __init__(self, dimensions):
         self.board = []
+        self.board_backup = []
         self.fog_of_war_map = []
         self.revealed_fields_count = 0
         self.mine_count = 0
@@ -73,6 +74,7 @@ class MineSweeper:
                 row.append(0)
             output.append(row)
         self.board = output
+        self.board_backup = self.board
 
     def reveal_adjacent(self, y, x):
         for y_offset in range(-1, 2):
@@ -99,7 +101,7 @@ class MineSweeper:
         return "safe"
 
     def check_win(self):
-        if self.game_result != "boom" and self.revealed_fields_count + self.mine_count == self.dimensions ** 2:
+        if self.game_result != "boom" and self.revealed_fields_count == self.dimensions ** 2:
             print("Mission accomplished")
             self.game_result = "victory"
 
@@ -113,11 +115,24 @@ class MineSweeper:
         # returns string : "safe"/"victory"/"boom"
         return self.game_result
 
+    def flag(self, y, x):
+
+        if self.fog_of_war_map[y][x] == 0:
+            if self.board[y][x] == "*":
+                self.board[y][x] = "F"
+            else:
+                #replaces safe field with bomb to cause loss
+                self.board[y][x] = "*"
+            self.action(y, x)
+
+
+
     def get_all_possible_moves(self):
         return [[y, x] for y in range(self.dimensions) for x in range(self.dimensions) if
                 self.fog_of_war_map[y][x] == 0]
 
     def reset(self):
+        self.board = self.board_backup
         self.generate_fog_of_war_map()
         self.revealed_fields_count = 0
         self.game_result = "safe"
