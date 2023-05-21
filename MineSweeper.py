@@ -91,7 +91,7 @@ class MineSweeper:
             self.fog_of_war_map[y][x] = 1
             if self.board[y][x] == '*':
                 print("boom!!!")
-                self.print_full_board()
+            #    self.print_full_board()
                 self.game_result = "boom"
             if self.board[y][x] == 0:
                 self.reveal_adjacent(y, x)
@@ -111,7 +111,7 @@ class MineSweeper:
         if self.fog_of_war_map[y][x] == 0:
             self.reveal(y, x)
             self.check_win()
-        self.print_player_map()
+        #self.print_player_map()
         # returns string : "safe"/"victory"/"boom"
         return self.game_result
 
@@ -144,7 +144,7 @@ class MineSweeper:
         self.mine_count = random.randint(self.dimensions ** 2 // 16, self.dimensions ** 2 // 8)
         # Only the mines on the board are strings, the rest are ints
         self.place_mines()
-        self.print_full_board()
+        #self.print_full_board()
 
     def get_neighbour_fields(self, y, x):
         output = []
