@@ -116,7 +116,9 @@ class QLearningAgent:
         return chosen_move, move_type
 
     def handle_qtable(self, old_neighbours, move_type):
-        new_neighbours = self.neighbours_to_string(neighbours)
+        # TODO new_neighbours powinno brać najlepszy ruch jaki będzie mógł zrobić w przyszłości, jeżeli to już koniec, prawdopodonie może przyjąc go za zero
+        # new_neighbours = self.neighbours_to_string(self.game.get_neighbour_fields())
+        new_neighbours = self.neighbours_to_string(old_neighbours) #placeholder
         old_neighbours = self.neighbours_to_string(old_neighbours)
         if old_neighbours not in self.qtable:
             self.qtable[old_neighbours] = [0] * len(self.move_types)
