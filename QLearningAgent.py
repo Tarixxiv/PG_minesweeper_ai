@@ -76,23 +76,23 @@ class QLearningAgent:
     def do_random_move(self):
         y, x = random.choice(self.game.get_all_possible_moves())
         flag = random.random() <= self.random_flag_chance
-        neighbours = self.game.get_neighbour_fields(y, x)
+        old_neighbours = self.game.get_neighbour_fields(y, x)
         if flag:
             self.game.flag(y, x)
             move_type = self.move_types["flag"]
         else:
             self.game.action(y, x)
             move_type = self.move_types["default"]
-        self.handle_qtable(neighbours, move_type)
+        self.handle_qtable(old_neighbours, move_type)
 
     def do_qtable_move(self):
         [y, x], flag = self.pick_best_qtable_move()
-        neighbours = self.game.get_neighbour_fields(y, x)
+        old_neighbours = self.game.get_neighbour_fields(y, x)
         if flag:
             self.game.flag(y, x)
         else:
             self.game.action(y, x)
-        self.handle_qtable(neighbours, flag)
+        self.handle_qtable(old_neighbours, flag)
 
     def pick_best_qtable_move(self):
         possible_moves = self.game.get_all_possible_moves()
@@ -115,18 +115,18 @@ class QLearningAgent:
 
         return chosen_move, move_type
 
-    def handle_qtable(self, neighbours, move_type):
-        future_neighbours = self.neighbours_to_string(neighbours)
-        neighbours = self.neighbours_to_string(neighbours)
-        if neighbours not in self.qtable:
-            self.qtable[neighbours] = [0] * len(self.move_types)
+    def handle_qtable(self, old_neighbours, move_type):
+        new_neighbours = self.neighbours_to_string(neighbours)
+        old_neighbours = self.neighbours_to_string(old_neighbours)
+        if old_neighbours not in self.qtable:
+            self.qtable[old_neighbours] = [0] * len(self.move_types)
 
-        contains_revealed_field = any(char.isdigit() for char in neighbours)
+        contains_revealed_field = any(char.isdigit() for char in old_neighbours)
         if contains_revealed_field:
-            reward = self.game_result_to_reward(neighbours)
-            self.qtable[neighbours][move_type] = self.qtable[neighbours][move_type] + self.learning_rate * (
+            reward = self.game_result_to_reward(old_neighbours)
+            self.qtable[old_neighbours][move_type] = self.qtable[old_neighbours][move_type] + self.learning_rate * (
                                                                           reward + self.gamma *
-                                                                          max(self.qtable[future_neighbours]))
+                                                                          max(self.qtable[new_neighbours]))
 
     def game_result_to_reward(self, neighbours):
         if self.game.game_result == "boom":
