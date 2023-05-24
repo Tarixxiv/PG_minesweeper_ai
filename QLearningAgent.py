@@ -13,9 +13,9 @@ class QLearningAgent:
         self.random_flag_chance = 0.05
         self.win_count = 0
         self.loss_count = 0
-        self.learning_rate = 0.9
-        self.gamma = 0.99       #maybe bigger
-        self.random_flag_chance_decay = 0.001       # random??
+        self.learning_rate = 0.1
+        self.gamma = 0.99  # maybe bigger
+        self.random_flag_chance_decay = 0.001  # random?
         self.random_move_chance_decay = 0.001
         self.previous_neighbours = None
         self.total_reward_in_episode = 0
@@ -32,8 +32,7 @@ class QLearningAgent:
                 else:
                     self.do_random_move()
 
-                self.random_move_chance = np.exp(-self.random_move_chance_decay*episode)    #maybe linear
-
+                self.random_move_chance = np.exp(-self.random_move_chance_decay * episode)  # maybe linear
 
             print("ended due to " + self.game.game_result)
             if self.game.game_result == "victory":
@@ -54,10 +53,11 @@ class QLearningAgent:
 
     def learn_and_test(self, dimensions):
         self.agent_loop(dimensions)
-      #  self.random_move_chance = self.random_move_chance_test
-      #  self.win_count = 0
-      #  self.loss_count = 0
-       # self.agent_loop(dimensions)
+
+    #  self.random_move_chance = self.random_move_chance_test
+    #  self.win_count = 0
+    #  self.loss_count = 0
+    # self.agent_loop(dimensions)
 
     def update_win_loss_count(self):
         if self.game.game_result == "boom":
@@ -70,8 +70,6 @@ class QLearningAgent:
             return self.win_count / (self.win_count + self.loss_count)
         else:
             return 0
-
-
 
     def do_random_move(self):
         y, x = random.choice(self.game.get_all_possible_moves())
@@ -102,7 +100,7 @@ class QLearningAgent:
             else:
                 move_scores.append(0)
 
-        #TODO flagi powinny być określane na bazie QTable a nie bo tak wychodzi, że abs się nada
+        # TODO flagi powinny być określane na bazie QTable a nie bo tak wychodzi, że abs się nada
 
         flag = False
         if max(move_scores) >= abs(min(move_scores)):
@@ -113,24 +111,24 @@ class QLearningAgent:
 
         return possible_moves[random.choice(best_move_indexes)], flag
 
-    def handle_qtable(self, neighbours, flag):
-        new_neighbours = self.neighbours_to_string(neighbours)
-        neighbours = self.neighbours_to_string(neighbours)
-        if neighbours not in self.qtable:
-            self.qtable[neighbours] = 0
+    def handle_qtable(self, old_neighbours, flag):
+        #TODO new_neighbours powinno brać najlepszy ruch jaki będzie mógł zrobić w przyszłości, jeżeli to już koniec, prawdopodonie może przyjąc go za zero
+        #new_neighbours = self.neighbours_to_string(self.game.get_neighbour_fields())
+        
+        old_neighbours = self.neighbours_to_string(old_neighbours)
+        if old_neighbours not in self.qtable:
+            self.qtable[old_neighbours] = 0
 
-        contains_revealed_field = any(char.isdigit() for char in neighbours)
+        contains_revealed_field = any(char.isdigit() for char in old_neighbours)
         if contains_revealed_field:
             if flag:
-                #self.qtable[neighbours] -= self.game_result_to_reward(neighbours)
-                reward = self.game_result_to_reward(neighbours)
+                reward = self.game_result_to_reward(old_neighbours)
             else:
-                reward = self.game_result_to_reward(neighbours)
-            self.qtable[neighbours] = self.qtable[neighbours] + self.learning_rate * (reward + self.gamma * self.qtable[new_neighbours] - self.qtable[neighbours])
+                reward = self.game_result_to_reward(old_neighbours)
+            self.qtable[old_neighbours] = (1 - self.learning_rate) * self.qtable[
+                old_neighbours] + self.learning_rate * (reward + self.gamma * self.qtable[new_neighbours])
 
     def game_result_to_reward(self, neighbours):
-        #TODO nagroda za zwyciestwo dla wszzystkich ruchów
-        #TODO Ponadto, każdy ruch ma być coraz mniej warty, zgodnie ze wzorem (jednak zależy od wzoru). Czy ma to też uwzględniać punktacje za zwyciestwonon?
         if self.game.game_result == "boom":
             return -1
         else:
