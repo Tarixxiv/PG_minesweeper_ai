@@ -36,7 +36,6 @@ class QLearningAgent:
 
                 self.random_move_chance = np.exp(-self.random_move_chance_decay * episode)  # maybe linear
 
-
             print("ended due to " + self.game.game_result)
             if self.game.game_result == "victory":
                 self.add_non_revealed_mines_to_qtable()
@@ -117,8 +116,7 @@ class QLearningAgent:
         return chosen_move, move_type
 
     def handle_qtable(self, neighbours, move_type):
-        # TODO new_neighbours powinno brać najlepszy ruch jaki będzie mógł zrobić w przyszłości, jeżeli to już koniec, prawdopodonie może przyjąc go za zero
-        new_neighbours = self.neighbours_to_string(neighbours)
+        future_neighbours = self.neighbours_to_string(neighbours)
         neighbours = self.neighbours_to_string(neighbours)
         if neighbours not in self.qtable:
             self.qtable[neighbours] = [0] * len(self.move_types)
@@ -128,10 +126,7 @@ class QLearningAgent:
             reward = self.game_result_to_reward(neighbours)
             self.qtable[neighbours][move_type] = self.qtable[neighbours][move_type] + self.learning_rate * (
                                                                           reward + self.gamma *
-                                                                          self.qtable[new_neighbours][
-                                                                              move_type] -
-                                                                          self.qtable[neighbours][
-                                                                              move_type])
+                                                                          max(self.qtable[future_neighbours]))
 
     def game_result_to_reward(self, neighbours):
         if self.game.game_result == "boom":
