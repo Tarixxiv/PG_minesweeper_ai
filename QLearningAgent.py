@@ -42,7 +42,7 @@ class QLearningAgent:
 
             self.update_win_loss_count()
             print("wins :", self.win_count, ",losses :", self.loss_count,
-                  ",win-loss ratio :", self.get_win_loss_ratio())
+                  ",win rate:", self.get_win_rate())
 
         print(sorted(((v, k) for k, v in self.qtable.items()), reverse=True))
 
@@ -67,7 +67,7 @@ class QLearningAgent:
         else:
             self.win_count += 1
 
-    def get_win_loss_ratio(self):
+    def get_win_rate(self):
         if self.win_count + self.loss_count != 0:
             return self.win_count / (self.win_count + self.loss_count)
         else:
@@ -125,12 +125,12 @@ class QLearningAgent:
 
         contains_revealed_field = any(char.isdigit() for char in old_neighbours)
         if contains_revealed_field:
-            reward = self.game_result_to_reward(old_neighbours)
+            reward = self.game_result_to_reward()
             self.qtable[old_neighbours][move_type] = self.qtable[old_neighbours][move_type] + self.learning_rate * (
                                                                           reward + self.gamma *
                                                                           max(self.qtable[new_neighbours]))
 
-    def game_result_to_reward(self, neighbours):
+    def game_result_to_reward(self):
         if self.game.game_result == "boom":
             return -1
         else:
