@@ -22,7 +22,7 @@ class QLearningAgent:
 
     def agent_loop(self, dimensions, episodes):
         win_ratio_history = []
-
+        losses = []
         for episode in range(episodes):
             self.game = MineSweeper(dimensions)
             self.total_reward_in_episode = 0
@@ -41,13 +41,15 @@ class QLearningAgent:
                 self.add_non_revealed_mines_to_qtable()
 
             self.update_win_loss_count()
-            print("episode: ", self.win_count + self.loss_count, ",wins :", self.win_count, ",losses :", self.loss_count,
-                  ",win rate:", self.get_win_rate())
-            win_ratio_history.append(self.get_win_rate())
+            if (self.win_count + self.loss_count - 1) % 5000 == 0:
+                print("episode:", episode, ",wins :", self.win_count, ",losses :", self.loss_count,
+                      ",win count:", self.win_count)
+            win_ratio_history.append(self.win_count)
+            losses.append(self.loss_count)
 
 
-        print(sorted(((v, k) for k, v in self.qtable.items()), reverse=True))
-        return win_ratio_history
+        #print(sorted(((v, k) for k, v in self.qtable.items()), reverse=True))
+        return win_ratio_history, losses
 
 
     def add_non_revealed_mines_to_qtable(self):
