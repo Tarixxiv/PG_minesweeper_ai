@@ -21,7 +21,7 @@ class MineSweeper:
                     if self.board[y + y_offset][x + x_offset] != '*' and y + y_offset >= 0 and x + x_offset >= 0:
                         self.board[y + y_offset][x + x_offset] += 1
                 except IndexError:
-                    print(y + y_offset, x + x_offset)
+                    #print(y + y_offset, x + x_offset)
                     pass
 
     def print_full_board(self):
@@ -90,7 +90,7 @@ class MineSweeper:
             self.revealed_fields_count += 1
             self.fog_of_war_map[y][x] = 1
             if self.board[y][x] == '*':
-                print("boom!!!")
+                #print("boom!!!")
             #    self.print_full_board()
                 self.game_result = "boom"
             if self.board[y][x] == 0:
@@ -102,7 +102,7 @@ class MineSweeper:
 
     def check_win(self):
         if self.game_result != "boom" and self.revealed_fields_count + self.mine_count == self.dimensions ** 2:
-            print("Mission accomplished")
+            #print("Mission accomplished")
             self.game_result = "victory"
 
     def action(self, y, x):
