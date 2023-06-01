@@ -4,24 +4,23 @@ from MineSweeper import MineSweeper
 
 
 class QLearningAgent:
-    def __init__(self, dimensions, random_move_chance, random_move_chance_test):
+    def __init__(self, dimensions):
         self.game = None
         self.qtable = {}
-        self.episodes = 8000
-        self.random_move_chance = random_move_chance
-        self.random_move_chance_test = random_move_chance_test
-        self.random_flag_chance = 0.05
+        self.episodes = 15000
+        self.random_move_chance = 1
+        self.min_random_move_chance = 0.01
+        self.random_flag_chance = 0.5
         self.win_count = 0
         self.loss_count = 0
         self.learning_rate = 0.1
-        self.gamma = 0.99  # maybe bigger
-        self.random_flag_chance_decay = 0.001  # random?
+        self.random_flag_chance_decay = 0.05
+        self.min_random_flag_chance = 0.005
         self.random_move_chance_decay = 0.001
         self.previous_neighbours = None
         self.total_reward_in_episode = 0
         self.move_types = {"default": 0, "flag": 1}
-
-        self.learn_and_test(dimensions)
+        self.agent_loop(dimensions)
 
     def agent_loop(self, dimensions):
         for episode in range(self.episodes):
@@ -34,9 +33,10 @@ class QLearningAgent:
                 else:
                     self.do_random_move()
 
-                self.random_move_chance = np.exp(-self.random_move_chance_decay * episode)  # maybe linear
+                self.random_move_chance = max(self.min_random_move_chance, np.exp(-self.random_move_chance_decay * episode))
+                self.random_flag_chance = max(self.min_random_flag_chance, np.exp(-self.random_flag_chance_decay * episode))
 
-            print("ended due to " + self.game.game_result)
+          #  print("ended due to " + self.game.game_result)
             if self.game.game_result == "victory":
                 self.add_non_revealed_mines_to_qtable()
 
@@ -52,14 +52,6 @@ class QLearningAgent:
             for move in self.game.get_all_possible_moves():
                 neighbours = self.game.get_neighbour_fields(*move)
                 self.handle_qtable(neighbours, self.move_types["flag"])
-
-    def learn_and_test(self, dimensions):
-        self.agent_loop(dimensions)
-
-    #  self.random_move_chance = self.random_move_chance_test
-    #  self.win_count = 0
-    #  self.loss_count = 0
-    # self.agent_loop(dimensions)
 
     def update_win_loss_count(self):
         if self.game.game_result == "boom":
@@ -118,21 +110,21 @@ class QLearningAgent:
     def handle_qtable(self, old_neighbours, move_type):
         # TODO new_neighbours powinno brać najlepszy ruch jaki będzie mógł zrobić w przyszłości, jeżeli to już koniec, prawdopodonie może przyjąc go za zero
         # new_neighbours = self.neighbours_to_string(self.game.get_neighbour_fields())
-        new_neighbours = self.neighbours_to_string(old_neighbours) #placeholder
+        #new_neighbours = self.neighbours_to_string(old_neighbours) #placeholder
         old_neighbours = self.neighbours_to_string(old_neighbours)
         if old_neighbours not in self.qtable:
             self.qtable[old_neighbours] = [0] * len(self.move_types)
 
         contains_revealed_field = any(char.isdigit() for char in old_neighbours)
         if contains_revealed_field:
-            reward = self.game_result_to_reward()
-            self.qtable[old_neighbours][move_type] = self.qtable[old_neighbours][move_type] + self.learning_rate * (
-                                                                          reward + self.gamma *
-                                                                          max(self.qtable[new_neighbours]))
+            reward = self.game_result_to_reward(move_type)
+            self.qtable[old_neighbours][move_type] = (1-self.learning_rate) * self.qtable[old_neighbours][move_type] + self.learning_rate * reward
 
-    def game_result_to_reward(self):
+    def game_result_to_reward(self, move_type):
         if self.game.game_result == "boom":
             return -1
+        elif move_type == 1:
+            return 2
         else:
             return 1
 
