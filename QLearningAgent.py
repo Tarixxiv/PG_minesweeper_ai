@@ -4,10 +4,9 @@ from MineSweeper import MineSweeper
 
 
 class QLearningAgent:
-    def __init__(self, dimensions):
+    def __init__(self):
         self.game = None
         self.qtable = {}
-        self.episodes = 30000
         self.random_move_chance = 1
         self.min_random_move_chance = 0.01
         self.random_flag_chance = 0.5
@@ -20,12 +19,11 @@ class QLearningAgent:
         self.previous_neighbours = None
         self.total_reward_in_episode = 0
         self.move_types = {"default": 0, "flag": 1}
-        self.agent_loop(dimensions)
 
-    def agent_loop(self, dimensions):
+    def agent_loop(self, dimensions, episodes):
         win_ratio_history = []
 
-        for episode in range(self.episodes):
+        for episode in range(episodes):
             self.game = MineSweeper(dimensions)
             self.total_reward_in_episode = 0
             while self.game.game_result == 'safe':
@@ -114,9 +112,6 @@ class QLearningAgent:
         return chosen_move, move_type
 
     def handle_qtable(self, old_neighbours, move_type):
-        # TODO new_neighbours powinno brać najlepszy ruch jaki będzie mógł zrobić w przyszłości, jeżeli to już koniec, prawdopodonie może przyjąc go za zero
-        # new_neighbours = self.neighbours_to_string(self.game.get_neighbour_fields())
-        #new_neighbours = self.neighbours_to_string(old_neighbours) #placeholder
         old_neighbours = self.neighbours_to_string(old_neighbours)
         if old_neighbours not in self.qtable:
             self.qtable[old_neighbours] = [0] * len(self.move_types)
