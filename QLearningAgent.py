@@ -4,12 +4,12 @@ from MineSweeper import MineSweeper
 
 
 class QLearningAgent:
-    def __init__(self, dimensions, random_move_chance, random_move_chance_test):
+    def __init__(self, dimensions, random_move_chance, random_move_chance_after_first_batch):
         self.game = None
         self.qtable = {}
         self.episodes = 5000
         self.random_move_chance = random_move_chance
-        self.random_move_chance_test = random_move_chance_test
+        self.random_move_chance_after_first_batch = random_move_chance_after_first_batch
         self.random_flag_chance = 0.05
         self.win_count = 0
         self.loss_count = 0
@@ -43,7 +43,7 @@ class QLearningAgent:
 
     def learn_and_test(self, dimensions):
         self.agent_loop(dimensions)
-        self.random_move_chance = self.random_move_chance_test
+        self.random_move_chance = self.random_move_chance_after_first_batch
         self.win_count = 0
         self.loss_count = 0
         self.agent_loop(dimensions)
